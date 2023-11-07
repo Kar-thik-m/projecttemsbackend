@@ -41,7 +41,7 @@ userRouter.post('/login', async function (req, res) {
     const appUser = await user.findOne({ email: payload.email }, { id: 1, name: 1, email: 1, password: 1, _id: 0 });
     if (appUser) {
 
-        const link = `${process.env.FRONTEND_URL}/?reset=${resetKey}`
+        const link = `${process.env.FRONTEND_URL}`
         await  transporter.sendMail({ ...mailOptions, to: payload.email, text: `please verify  ${link}` });
     }
 
