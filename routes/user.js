@@ -59,31 +59,26 @@ userRouter.post('/login',async function(req,res){
 })
 //forgotPassword
 userRouter.post('/forgotpassword',async(req,res)=>{
-   
-    const emailfound = await user.findOne({ email: email });
-    
-    if (emailfound) {
-        const token = jwt.sign({ email: email }, process.env.JWT_SECRET, {
-          expiresIn: '1d',
-        });
-        const link = `${process.env.FRONTEND_URL}/verify?token=${token}`;
-        await user.updateOne({ email: email }, { $set: { token: token } });
-        await transporter.sendMail({
-          ...mailOptions,
-          to: email,
-          subject: 'Password update Verification link',
-          text: `Please verify your e-mail address using this link: ${link}`,
-        });
-        res.status(200).send({ message: "Email successfully" });
-        console.log("Email successfully " + link);
-      }
-  else {
-  res.status(401).send({ message: "User not found" });
-}
+    const email=req.body.email;
+    const emailfound=await user.findOne({email: email});
 
-  
-  
-        
+    try{ 
+        if(emailfound){
+           const token=jwt.sign({email:email},process.env.JWT_SECRET,{expiresIn:'1d'});
+           const link=`${process.env.FRONTEND_URL}/verify?token=${token}`
+            await user.updateOne({email:email},{'$set':{token:token}})
+            await transporter.sendMail({...mailOptions,to:email,subject:'Password update Verification link',text:`Please verify your e-mail address using these link ${link} `})
+            res.status(200).send({message:"email successfully"}) 
+            console.log("email successfully"+link)
+        }
+        else{
+            res.status(401).send({message:"user not found"});
+        } 
+    }
+   catch(err){
+    console.log(err)
+    res.status(500).send({msg:"error is creating "})
+   }  
 })
 //verifying token
 userRouter.post('/verify-token',async(req,res)=>{
