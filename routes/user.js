@@ -37,7 +37,7 @@ userRouter.post('/register', async (req, res) => {
 
 userRouter.post('/login', async function (req, res) {
    try {
-    const payload = req.body;
+    const payload = req.body.email;
     const appUser = await user.findOne({ email: payload.email }, { id: 1, name: 1, email: 1, password: 1, _id: 0 });
     if (appUser) {
 
