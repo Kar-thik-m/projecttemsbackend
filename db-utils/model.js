@@ -23,9 +23,12 @@ const userSchema = new mongoose.Schema({
     type:"string",
     require:true,//admin/normal
     },
-    ResetKey:{
-        type:'string',
-        require: true,
+    isVerified:{
+        type:Boolean,
+        default:false,
+    },
+    token:{
+        type:String
     }
    
 });
