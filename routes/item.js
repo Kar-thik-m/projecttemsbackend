@@ -1,6 +1,6 @@
 import express  from "express";
 
-import  {item as model} from "../db-connect/model.js";
+import  {item as model} from "../db-utils/model.js";
 import { v4 } from "uuid";
 const itemRouter=express.Router();
 
