@@ -3,13 +3,14 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-const username = "sparrowkarthik007"
-const dbName = "day40"
-const  password =  "PK38iRPSo2IuXk2k"
-const clusterName ="cluster0.vtlusor.mongodb.net"
+
+const username=process.env.DB_USERNAME ||'';
+const password=process.env.DB_PASSWORD ||'';
+const clustername=process.env.DB_CLUSTER||'';
+const database=process.env.DB_DATABASE||'';
 
 
-const cloudMongoUrl = `mongodb+srv://${username}:${password}@${clusterName}/${dbName}?retryWrites=true&w=majority`;
+const cloudMongoUrl = `mongodb+srv://${username}:${password}@${clustername}/${database}?retryWrites=true&w=majority`;
 
 const dbconnect = async ()=>{
 try{
