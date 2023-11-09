@@ -3,8 +3,18 @@ import { user } from '../db-utils/model.js';
 import {v4} from 'uuid';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
-import  transporter  from 'nodemailer';
-import mailOptions  from 'nodemailer/lib/json-transport/index.js';
+import nodemailer from "nodemailer";
+
+
+
+const transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: 'sparrowkarthik007@gmail.com',
+      pass: 'gess xxge ihrh vrys',
+    },
+  });
+
 //router 
 const userRouter=express.Router();
 //register router
@@ -59,27 +69,40 @@ userRouter.post('/login',async function(req,res){
 })
 //forgotPassword
 userRouter.post('/forgotpassword',async(req,res)=>{
-    const email=req.body.email;
-    const emailfound=await user.findOne({email: email});
-
-    try{ 
-        if(emailfound){
-           const token=jwt.sign({email:email},process.env.JWT_SECRET,{expiresIn:'1d'});
-           const link=`${process.env.FRONTEND_URL}/verify?token=${token}`
-            await user.updateOne({email:email},{'$set':{token:token}})
-            await transporter.sendMail({...mailOptions,to:email,subject:'Password update Verification link',text:`Please verify your e-mail address using these link ${link} `})
-            res.status(200).send({message:"email successfully"}) 
-            console.log("email successfully"+link)
-        }
-        else{
-            res.status(401).send({message:"user not found"});
-        } 
+    try {
+    
+     const email = req.body.email;
+     const appUser = await user.findOne({ email: email }, { name: 1, email: 1, _id: 0 });
+     if(appUser){
+       const token=jwt.sign({email:email},process.env.JWT_SECRET,{expiresIn:'1d'});
+       const link=`${process.env.FRONTEND_URL}/verify?token=${token}`
+       await user.updateOne({email:email},{'$set':{token:token}})
+     const mailOptions = {
+       from: 'your_email@gmail.com',
+       to: email,
+       subject: 'Password Reset Request',
+       text: `You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n
+              Please click on the following link to complete the process:\n\n${ link}\n\n
+              If you did not request this, please ignore this email and your password will remain unchanged.\n`,
+     };
+   
+     transporter.sendMail(mailOptions, (error) => {
+       if (error) {
+         console.log(error);
+         res.status(500).send('Failed to send the password reset email.');
+       } else {
+         res.render('reset-success');
+       }
+     });
+   }else{
+     res.status(404).send({ msg: 'user not found' });
+   }
+    } catch (err) {
+     console.log(err);
+     res.status(500).send({ msg: 'Error in updating' })
     }
-   catch(err){
-    console.log(err)
-    res.status(500).send({msg:"error is creating "})
-   }  
-})
+   
+   });
 //verifying token
 userRouter.post('/verify-token',async(req,res)=>{
  
